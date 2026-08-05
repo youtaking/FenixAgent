@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:latest AS uv
 
-FROM oven/bun:1 AS base
+FROM oven/bun:1.3 AS base
 WORKDIR /app
 
 FROM base AS deps
@@ -14,7 +14,7 @@ COPY tsconfig.json tsconfig.base.json ./
 COPY src ./src
 COPY web ./web
 COPY components.json drizzle.config.ts ./
-RUN bun run build:web
+RUN NODE_OPTIONS="--max-old-space-size=4096" bun run build:web
 RUN bun build src/index.ts --target=bun --sourcemap=external --outdir dist \
     --define process.env.GIT_COMMIT_SHA="'${GIT_COMMIT_SHA}'"
 
@@ -24,7 +24,7 @@ FROM deps AS migrate-build
 COPY scripts/migrate.ts ./scripts/migrate.ts
 RUN bun build scripts/migrate.ts --target=bun --outdir /tmp/migrate-bundle
 
-FROM oven/bun:1 AS migrate
+FROM oven/bun:1.3 AS migrate
 WORKDIR /app
 COPY --from=migrate-build /tmp/migrate-bundle/migrate.js ./
 COPY drizzle ./drizzle
@@ -32,7 +32,7 @@ CMD ["bun", "migrate.js"]
 
 ############### production image ###############
 
-FROM oven/bun:1 AS runtime
+FROM oven/bun:1.3 AS runtime
 WORKDIR /app
 
 COPY --from=uv /uv /uvx /usr/local/bin/
