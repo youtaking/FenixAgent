@@ -15,7 +15,7 @@ COPY tsconfig.json tsconfig.base.json ./
 COPY src ./src
 COPY web ./web
 COPY components.json drizzle.config.ts ./
-RUN NODE_OPTIONS="--max-old-space-size=4096" bun run build:web
+RUN cd web && NODE_OPTIONS="--max-old-space-size=4096" bun ../node_modules/vite/bin/vite.js build
 RUN bun build src/index.ts --target=bun --sourcemap=external --outdir dist \
     --define process.env.GIT_COMMIT_SHA="'${GIT_COMMIT_SHA}'"
 
