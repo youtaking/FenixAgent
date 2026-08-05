@@ -6,7 +6,8 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json bun.lock ./
 COPY packages ./packages
-RUN bun install --frozen-lockfile --ignore-scripts
+RUN bun -e "const p=require('./package.json'); delete p.scripts.prepare; require('fs').writeFileSync('./package.json', JSON.stringify(p,null,2))"
+RUN bun install --frozen-lockfile
 
 FROM deps AS build
 ARG GIT_COMMIT_SHA=unknown
