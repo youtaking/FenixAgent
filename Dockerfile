@@ -6,7 +6,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json bun.lock ./
 COPY packages ./packages
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 FROM deps AS build
 ARG GIT_COMMIT_SHA=unknown
